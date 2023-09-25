@@ -37,12 +37,12 @@ def getGraphData(G1,node_embeddings):
     for edge in G1.edges():
         edge_index.append([int(edge[0]), int(edge[1])])
         edge_attr.append(G1[edge[0]][edge[1]]['weight'])
-    # 将边和权重转换为Tensor张量
+
     edge_index = torch.tensor(edge_index).T.to(device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
     edge_attr = torch.tensor(edge_attr).to(device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
-    # 将节点嵌入转换为Tensor张量
+
     embedding_array = node_embeddings
-    # 将NumPy数组转换为torch.tensor
+
     x = torch.tensor(embedding_array)
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
 
@@ -80,18 +80,8 @@ class FC(pl.LightningModule):
         self.pre = Precision(average='micro')
         self.recall = Recall(average='micro')
 
-        # 定义指标函数
-        # self.loss_fn = nn.CrossEntropyLoss()
+
         self.accuracy = torchmetrics.Accuracy()
-        # self.recall = torchmetrics.Recall(num_classes=50, average='macro')      #classes是多少？
-        #
-        # self.preci = torchmetrics.Precision(num_classes=50, average='macro')
-        # self.f1_score = torchmetrics.F1(num_classes=50, average='macro')
-        #
-        # self.recall2 = torchmetrics.Recall(num_classes=2, average='macro')  # classes是多少？
-        #
-        # self.preci2 = torchmetrics.Precision(num_classes=2, average='macro')
-        # self.f1_score2 = torchmetrics.F1(num_classes=2, average='macro')
         self.startTime = None
         self.matrix = matrix
         self.alpha = nn.Parameter(torch.tensor(alpha), requires_grad=True)
@@ -208,35 +198,17 @@ class FC(pl.LightningModule):
         p_P = self.pre(output2, target2)
         r_P = self.recall(output2, target2)
 
-        # 计算ACC、Recall、Precision和F-measure值
         acc1 = self.accuracy(output1, target1)
-        # recall1 = self.recall(output1, target1)
-        # preci1 = self.preci(output1, target1)
-        # f1_1 = self.f1_score(output1, target1)
 
         acc2 = self.accuracy(output2, target2)
-        # recall2 = self.recall(output2, target2)
-        # preci2 = self.preci(output2, target2)
-        # f1_2 = self.f1_score(output2, target2)
 
-        # 记录指标的值
+
         self.log('loss',loss1, on_step=False, on_epoch=True)
         self.log('test_acc1', acc1, on_step=False, on_epoch=True)
-        # self.log('test_recall1', recall1, on_step=False, on_epoch=True)
-        # self.log('test_preci1', preci1, on_step=False, on_epoch=True)
-        # self.log('test_f1_1', f1_1, on_step=False, on_epoch=True)
         duration = endTime - self.startTime
         self.log('duration', endTime - self.startTime, on_step=False, on_epoch=True)
-
         self.log('test_acc2', acc2, on_step=False, on_epoch=True)
-        # self.log('test_recall2', recall2, on_step=False, on_epoch=True)
-        # self.log('test_preci2', preci2, on_step=False, on_epoch=True)
-        # self.log('test_f1_2', f1_2, on_step=False, on_epoch=True)
 
-
-        # 计算损失并返回
-        # loss1 = self.loss_fn(output1, target1)
-        # loss2 = self.loss_fn(output2, target2)
 
         return {'loss':loss1,
                 'test_acc1':acc1, 'test_acc2':acc2,
@@ -263,10 +235,8 @@ class FC(pl.LightningModule):
         print({"F1_R": F1_R/i, "Precision_R": Precision_R/i, "Recall_R": Recall_R/i})
         print({"F1_P": F1_P/i, "Precision_P": Precision_P/i, "Recall_P": Recall_P/i})
 
-        # 汇总所有测试批次的损失
         loss1 = torch.stack([x['loss'] for x in outputs]).mean()
 
-        # 汇总所有测试批次的ACC、Recall、Precision和F-measure值
         acc1 = torch.stack([x['test_acc1'] for x in outputs]).mean()
 
 
@@ -303,9 +273,8 @@ class FC(pl.LightningModule):
             file.write(f'eps: {self.eps:.2f}')
 
     def gdc(self, A1):
-        # 选择一种gdc算法
 
-        gdc_alpha = 1 + 9 * self.alpha  # 将alpha转换到[1,10]之间
+        gdc_alpha = 1 + 9 * self.alpha
 
         num_nodes = A1.shape[0]
         A_tilde1 = A1 + np.eye(num_nodes)
@@ -333,13 +302,13 @@ test_dl = torch.utils.data.DataLoader(test_dataset, batch_size=4)
 
 
 #fn = '..//myData//final_data//graph.pkl'
-fn = '..//myData//final_data//data.pkl'         #data具有三个维度x=[50, 128], edge_index=[2, 2014], edge_attr=[2014, 1],分别指嵌入矩阵，边集合和边对应的权重集合
+fn = '..//myData//final_data//data.pkl'
 with open(fn, 'rb+') as f:
     graph = pickle.load(f)
 graph.x = torch.tensor(graph.x, dtype=torch.float32)
 graph.edge_index = torch.tensor(graph.edge_index, dtype=torch.long)
 graph.edge_attr = torch.tensor(graph.edge_attr)
-# 图扩散
+
 A_ALPHA = 0.50
 A_EPS = 0.05
 G1 = to_networkx(graph)

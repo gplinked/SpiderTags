@@ -63,7 +63,7 @@ class SRaSLRMMAA(pl.LightningModule):
     def configure_optimizers(self):
         bert_params = list(map(id, self.bert_encoder.parameters()))
         base_params = filter(lambda p: id(p) not in bert_params, self.parameters())
-        # 分层学习
+        # Layered Learning
         optimizer = torch.optim.Adam([
             {"params": self.bert_encoder.parameters(), "lr": 3e-5},
             {"params": base_params, "lr": 0.001},
