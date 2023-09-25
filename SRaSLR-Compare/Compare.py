@@ -24,12 +24,12 @@ def getGraphData(G1,node_embeddings):
     for edge in G1.edges():
         edge_index.append([int(edge[0]), int(edge[1])])
         edge_attr.append(G1[edge[0]][edge[1]]['weight'])
-    # 将边和权重转换为Tensor张量
+    # Convert edges and weights to Tensor tensors
     edge_index = torch.tensor(edge_index).T.to(device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
     edge_attr = torch.tensor(edge_attr).to(device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
-    # 将节点嵌入转换为Tensor张量
+    # Transform node embedding into Tensor tensor
     embedding_array = node_embeddings.vectors
-    # 将NumPy数组转换为torch.tensor
+    # Convert NumPy array to torch. sensor
     x = torch.tensor(embedding_array)
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
 
@@ -99,7 +99,6 @@ class GCN(pl.LightningModule):
 
 
     def gdc(self, A1):
-        # 选择一种gdc算法
 
         gdc_alpha = 1 + 9 * self.alpha  # 将alpha转换到[1,10]之间
 
@@ -145,13 +144,13 @@ class GCN(pl.LightningModule):
         return h
 
     def training_step(self, train_batch, batch_idx):
-        # 获取批次数据
+        # Obtain batch data
         input_ids, token_type_ids, attention_mask, targets, node_ids, node_type = train_batch
 
-        # 将数据传入模型进行前向计算
+        # Input data into the model for forward calculation
         outputs = self.forward(self.graph, input_ids, token_type_ids, attention_mask, node_ids, node_type)
 
-        # 计算损失
+        # Calculate losses
         loss = self.loss_fn(outputs, targets)
         loss = loss.mean()
 
@@ -162,11 +161,9 @@ class GCN(pl.LightningModule):
     def validation_step(self, val_batch, batch_idx):
         input_ids, token_type_ids, attention_mask, targets, node_ids, node_type = val_batch
 
-        # 将数据传入模型进行前向计算
         with torch.no_grad():
             outputs = self.forward(self.graph, input_ids, token_type_ids, attention_mask, node_ids, node_type)
 
-        # 计算损失
         loss = self.loss_fn(outputs, targets)
         self.log('val_loss', loss)
 
@@ -213,7 +210,7 @@ class GCN(pl.LightningModule):
             file.write(f'eps: {self.eps:.2f}')
             file.write("\n")
 
-        # 记录指标的值
+        # Record the value of the indicator
         self.log('test_acc', acc, on_step=False, on_epoch=True)
         self.log('test_recall', recall, on_step=False, on_epoch=True)
         self.log('test_preci', preci, on_step=False, on_epoch=True)
@@ -242,14 +239,14 @@ class GCN(pl.LightningModule):
 
         avg_loss = torch.stack([x['test_loss'] for x in outputs]).mean()
 
-        # 汇总所有测试批次的ACC、Recall、Precision和F-measure值
+        # Summarize ACC, Recall, Precision, and F-measure values for all test batches
         acc = torch.stack([x['test_acc'] for x in outputs]).mean()
         recall = torch.stack([x['test_recall'] for x in outputs]).mean()
         preci = torch.stack([x['test_preci'] for x in outputs]).mean()
         f1 = torch.stack([x['test_f1'] for x in outputs]).mean()
 
 
-        # 输出测试指标的值
+        # Output the value of test indicators
         self.log('test_loss', avg_loss, on_step=False, on_epoch=True)
         self.log('test_acc', acc, on_step=False, on_epoch=True)
         self.log('test_recall', recall, on_step=False, on_epoch=True)
@@ -309,17 +306,17 @@ model_path = './bert_model/'
 tokenizer = BertTokenizer.from_pretrained(model_path)
 
 # Load graph and create DGL graph
-G1 = nx.read_weighted_edgelist('N-mmaa_frequency.edgelist')
+G1 = nx.read_weighted_edgelist('./data/N-mmaa_frequency.edgelist')
 PATH = 'data/embed/mm_aa_freq_100.txt'
 node_embeddings = gensim.models.KeyedVectors.load_word2vec_format(PATH, binary=False)
-#获得图数据
+#Obtaining Graph Data
 graph = getGraphData(G1,node_embeddings)
-#获得邻接矩阵以图扩散
+#Obtain adjacency matrix to graph diffusion
 A1 = nx.to_numpy_matrix(G1)
 np_array1 = np.asarray(A1)
 adj_matrix1 = nx.to_scipy_sparse_matrix(G1, format="csr")
 
-#数据
+#Data
 X = list(range(4099))
 # train_ids, test_ids = train_test_split(X, test_size=0.1, random_state=1)
 # train_ids, val_ids = train_test_split(train_ids, test_size=0.5, random_state=1)
