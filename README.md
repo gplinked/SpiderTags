@@ -33,7 +33,8 @@ scikit_learn==1.0.2
 transformers==4.15.0
 torchmetrics==0.6.2
 torch_geometric==2.0.4
-
+networkx==2.1.0
+dgl==1.1.0
 ```
 ### Dataset
 The dataset TCN can download from [here](https://www.aliyundrive.com/s/1uJREPBUDx2).
