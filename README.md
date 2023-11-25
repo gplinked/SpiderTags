@@ -37,7 +37,7 @@ networkx==2.1.0
 dgl==1.1.0
 ```
 ### Dataset
-The dataset TCN can download from [here](https://www.aliyundrive.com/s/1uJREPBUDx2).
+The dataset TCN can download from [here](https://www.aliyundrive.com/s/YfhdTs2SYUj).
 
 
 ### Train models
@@ -47,7 +47,7 @@ The dataset TCN can download from [here](https://www.aliyundrive.com/s/1uJREPBUD
 pip install -r requirement.txt
 ```
 - Download `bert_model` and put it in `SRaSLR-Compare`.
-- Download `myData` in [here](https://www.aliyundrive.com/s/1uJREPBUDx2) and put it in `SpiderTag`.
+- Download `myData` in [here](https://www.aliyundrive.com/s/YfhdTs2SYUj) and put it in `SpiderTag`.
 - Use `python` command to train and test the model. For example:
 ```commandline
 python TagTag/TagTag.py
