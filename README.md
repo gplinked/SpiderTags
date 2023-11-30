@@ -50,6 +50,6 @@ pip install -r requirement.txt
 - Download `myData` in [here](https://www.aliyundrive.com/s/YfhdTs2SYUj) and put it in `SpiderTag`.
 - Use `python` command to train and test the model. For example:
 ```commandline
-python TagTag/TagTag.py
+python SpiderTags.py
 ```
 
